@@ -1,0 +1,9 @@
+@import '../bower_components/bourbon/dist/bourbon';
+$white: #fff;
+$black: #000;
+@import 'settings';
+@import '../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap';
+
+body{
+    -webkit-font-smoothing: antialiased;
+}
