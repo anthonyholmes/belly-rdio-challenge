@@ -55,24 +55,33 @@ if(window.localStorage.playbackToken && window.localStorage.playbackToken.length
     console.log('the token is not stored');
 }
 
-/**
- * ************************************
- * Search Functions
- * ************************************
- */
-
-function searchRdio(query){
-    $.get(rdioServiceUrl + '/search', {q: query}, function(data){
-        console.log(data);
-    });
-}
-
-
 var thePlayer = $('#the-player');
+var duration;
 
+// When player is ready
 thePlayer.bind('ready.rdio', function() {
-    $(this).rdio().queue('a171827');
-  });
+    // $(this).rdio().queue('a975630');
+    $(this).rdio().queue('t48620816');
+    // id: "t48620816"length: 31name: "Love Someone"object_type: "search_result"radio_id: "sr48620816"
+});
+
+// When the track gets changed
+thePlayer.bind('playingTrackChanged.rdio', function(e, playingTrack, sourcePosition) {
+  if (playingTrack) {
+    duration = playingTrack.duration;
+    $('#track-image').attr('src', playingTrack.icon);
+    $('#track-name').text(playingTrack.name);
+    $('#album-name').text(playingTrack.album);
+    $('#artist-name').text(playingTrack.artist);
+    $('.fullscreen-bg').css('background-image', 'url(' + playingTrack.icon + ')');
+  }
+});
+
+// When song position changes
+thePlayer.bind('positionChanged.rdio', function(e, position) {
+  $('#progress-bar').css('width', Math.floor(100*position/duration)+'%');
+  console.log(position);
+});
 
 thePlayer.rdio(playbackToken);
 
@@ -87,6 +96,8 @@ var playButton, pauseButton, stopButton;
 playButton = $('#play-button');
 pauseButton = $('#pause-button');
 stopButton = $('#stop-button');
+previousButton = $('#previous-button');
+nextButton = $('#next-button');
 
 playButton.click(function(){
     thePlayer.rdio().play();
@@ -100,12 +111,59 @@ stopButton.click(function(){
     thePlayer.rdio().stop();
 });
 
+previousButton.click(function(){
+    thePlayer.rdio().previous();
+});
+
+nextButton.click(function(){
+    thePlayer.rdio().next();
+});
 
 
+/**
+ * ************************************
+ * Search Functions
+ * ************************************
+ */
+
+var searchResults, albumResults, trackResults, artistResults;
+
+function searchRdio(query){
+    $.get(rdioServiceUrl + '/search', {q: query}, function(data){
+        searchResults = data.data;
+    });
+}
+
+$('.search-form').on('keyup', function(){
+    inputData = $(this).val();
+    searchRdio(inputData);
+
+    albumResults = _.where(searchResults, {type: 'album'});
+    artistResults = _.where(searchResults, {type: 'artist'});
+    trackResults = _.where(searchResults, {type: 'track'});
+
+    // Clear Results HTML
+    albumResultsUL = $('#album-results');
+    artistResultsUL = $('#artist-results');
+    trackResultsUL = $('#track-results');
+
+    albumResultsUL.html('');
+    artistResultsUL.html('');
+    trackResultsUL.html('');
 
 
+    $.each(albumResults, function(k,v){
+        albumResultsUL.append('<li>' + v.name + '</li>');
+    })
 
+    $.each(artistResults, function(k,v){
+        artistResultsUL.append('<li>' + v.name + '</li>');
+    })
 
+    $.each(trackResults, function(k,v){
+        trackResultsUL.append('<li>' + v.name + '</li>');
+    })
 
+});
 
 

@@ -10,23 +10,60 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/main.css">
+
+        <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-route.min.js"></script> -->
+
+        <!-- <script src="js/angular.min.js"></script> -->
     </head>
     <body>
 
+        <div class="fullscreen-bg"></div>
 
+        <div class="container">
+            <div class="row">
+                <div id="the-player"></div>
 
-        <div id="the-player"></div>
+                <div class="multiple-datasets">
+                    <input type="text" class="form-control search-form" placeholder="Search Artist, Album, and Songs">
+                </div>
 
-        <div class="progress">
-          <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">0% Complete</span>
-          </div>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar">
+                    <span class="sr-only">0% Complete</span>
+                  </div>
+                </div>
+
+                <img src="" alt="" id="track-image">
+
+                <div class="track-info">
+                    <div id="track-name"></div>
+                    <div id="album-name"></div>
+                    <div id="artist-name"></div>
+                </div>
+
+                <a href="javascript:;" id="previous-button" class="player-control"><i class="fa fa-backward"></i></a>
+                <a href="javascript:;" id="play-button" class="player-control"><i class="fa fa-play"></i></a>
+                <a href="javascript:;" id="pause-button" class="player-control"><i class="fa fa-pause"></i></a>
+                <a href="javascript:;" id="stop-button" class="player-control"><i class="fa fa-stop"></i></a>
+                <a href="javascript:;" id="next-button" class="player-control"><i class="fa fa-forward"></i></a>
+
+                <div id="search-results">
+                    <div id="artist-results-section">
+                        <ul id="artist-results"></ul>
+                    </div>
+                    <div id="album-results-section">
+                        <ul id="album-results"></ul>
+                    </div>
+                    <div id="track-results-section">
+                        <ul id="track-results"></ul>
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-        <a href="javascript:;" id="play-button">Play</a>
-        <a href="javascript:;" id="pause-button">Pause</a>
-        <a href="javascript:;" id="stop-button">Stop</a>
 
         <script src="js/main.js"></script>
 

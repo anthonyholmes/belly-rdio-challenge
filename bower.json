@@ -17,5 +17,7 @@
   "devDependencies": {
     "bootstrap-sass-official": "~3.2.0+2",
     "bourbon": "~4.0.2"
+  },
+  "dependencies": {
   }
 }

@@ -26,6 +26,8 @@ gulp.task('js', function(){
         'bower_components/jquery/dist/jquery.min.js',
         'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
         'bower_components/jquery.rdio/jquery.rdio.min.js',
+        'bower_components/underscore/underscore.js',
+        // 'bower_components/backbone/backbone.js',
         'js/app.js'
     ])
     .pipe(concat('main.js'))
@@ -35,10 +37,10 @@ gulp.task('js', function(){
 
 gulp.task('move-assets', function(){
     // Any JS that might be used publicly
-    // gulp.src([
-    //     'bower_components/jquery/dist/jquery.min.js',
-    //     'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js'
-    // ]).pipe(gulp.dest(public_path + '/js'));
+    gulp.src([
+        'bower_components/jquery/dist/jquery.min.js',
+        'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
+    ]).pipe(gulp.dest(public_path + '/js'));
 });
 
 
