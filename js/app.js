@@ -58,10 +58,29 @@ if(window.localStorage.playbackToken && window.localStorage.playbackToken.length
 var thePlayer = $('#the-player');
 var duration;
 
+// When Queue changes
+thePlayer.bind('queueChanged.rdio', function(e, theQueue) {
+  console.log('queue changed');
+
+  $('#queue-qty').text(theQueue.length);
+
+  var queueListings = $('#queue-listings');
+  queueListings.html('');
+
+  $.each(theQueue, function(i,v){
+    $('#queue-listings').append(queueResultTemplate(v));
+  });
+  console.log(theQueue);
+});
+
+function queueResultTemplate(result){
+    return "<li><div class='queue-listing-image'><img src='" + result.icon + "' /></div><div class='queue-listing-info'><div class='result-name'>"+result.name+"</div><div class='result-artist'>"+result.artist+"</div></div></li>";
+}
+
 // When player is ready
 thePlayer.bind('ready.rdio', function() {
-    // $(this).rdio().queue('a975630');
-    $(this).rdio().queue('t48620816');
+    $(this).rdio().queue('a975630');
+    // $(this).rdio().queue('t48620816');
     // id: "t48620816"length: 31name: "Love Someone"object_type: "search_result"radio_id: "sr48620816"
 });
 
@@ -80,9 +99,28 @@ thePlayer.bind('playingTrackChanged.rdio', function(e, playingTrack, sourcePosit
 // When song position changes
 thePlayer.bind('positionChanged.rdio', function(e, position) {
   $('#progress-bar').css('width', Math.floor(100*position/duration)+'%');
-  console.log(position);
+  // console.log(position);
 });
 
+// Play
+thePlayer.bind('playStateChanged.rdio', function(e, playState) {
+    var playPauseHidden = $('.hidden-player-control').attr('id');
+    // console.log(playPauseHidden);
+    if (playState == 0) { // paused
+      if(playPauseHidden === 'play-button'){
+        playButton.toggleClass('hidden-player-control');
+        pauseButton.toggleClass('hidden-player-control');
+      }
+    } else {
+      if(playPauseHidden === 'pause-button'){
+        playButton.toggleClass('hidden-player-control');
+        pauseButton.toggleClass('hidden-player-control');
+      }
+    }
+});
+
+
+// Initialize the Player
 thePlayer.rdio(playbackToken);
 
 /**
@@ -126,44 +164,129 @@ nextButton.click(function(){
  * ************************************
  */
 
-var searchResults, albumResults, trackResults, artistResults;
+var searchResults, albumResults, trackResults, artistResults, searchTimeout, loadingMessage;
+
+// Clear Results HTML
+albumResultsUL = $('#album-results');
+artistResultsUL = $('#artist-results');
+trackResultsUL = $('#track-results');
+
+loadingMessage = $('.loading-results-section');
 
 function searchRdio(query){
-    $.get(rdioServiceUrl + '/search', {q: query}, function(data){
-        searchResults = data.data;
+    $.ajax({
+        url: rdioServiceUrl + '/search',
+        data: {q: query},
+        success: function(data){
+            searchResults = data.data;
+
+            // Filter Results
+            albumResults = _.where(searchResults, {type: 'album'});
+            artistResults = _.where(searchResults, {type: 'artist'});
+            trackResults = _.where(searchResults, {type: 'track'});
+
+            loadingMessage.slideUp();
+            clearSearchResultsHtml();
+            buildSearchResultsHtml();
+        }
     });
 }
 
 $('.search-form').on('keyup', function(){
     inputData = $(this).val();
-    searchRdio(inputData);
 
-    albumResults = _.where(searchResults, {type: 'album'});
-    artistResults = _.where(searchResults, {type: 'artist'});
-    trackResults = _.where(searchResults, {type: 'track'});
+    window.clearTimeout(searchTimeout);
 
-    // Clear Results HTML
-    albumResultsUL = $('#album-results');
-    artistResultsUL = $('#artist-results');
-    trackResultsUL = $('#track-results');
+    // Search Form Blank
+    if(inputData === ""){
+        clearSearchResultsHtml();
+        console.log('blank input');
+    }
+    // Search Form is less than 3 char
+    else if(inputData.length < 3){
+        clearSearchResultsHtml();
+        console.log('search too short');
+    }
+    // Ok Let's Search
+    else{
+        searchTimeout = window.setTimeout(function(){
+            searchRdio(inputData);
+            // console.log('searching');
 
+        }, 500);
+    }
+
+});
+
+function clearSearchResultsHtml(){
     albumResultsUL.html('');
     artistResultsUL.html('');
     trackResultsUL.html('');
+}
 
-
+function buildSearchResultsHtml(){
     $.each(albumResults, function(k,v){
-        albumResultsUL.append('<li>' + v.name + '</li>');
-    })
+        albumResultsUL.append(searchResultTemplate(v));
+    });
 
-    $.each(artistResults, function(k,v){
-        artistResultsUL.append('<li>' + v.name + '</li>');
-    })
+    // $.each(artistResults, function(k,v){
+    //     artistResultsUL.append(searchResultTemplate(v));
+    // });
 
     $.each(trackResults, function(k,v){
-        trackResultsUL.append('<li>' + v.name + '</li>');
-    })
+        trackResultsUL.append(searchResultTemplate(v));
+    });
 
-});
+    // Search Result Actions
+    $('.play-result').click(function(){
+        resultId = $(this).data('rdio-id');
+        thePlayer.rdio().play(resultId);
+    });
+
+    $('.queue-result').click(function(){
+        resultId = $(this).data('rdio-id');
+        thePlayer.rdio().queue(resultId);
+    });
+}
+
+function searchResultTemplate(result){
+    return "<li style=\"background-image: url(" + result.icon + ")\"><div class='result-name'>"+result.name+"</div><div class='hover-actions'><a href='javascript:;' class='play-result' data-rdio-id='" + result.id + "'><i class='fa fa-play'></i> Play this "+result.type+"</a><a href='javascript:;' class='queue-result' data-rdio-id='" + result.id + "'><i class='fa fa-plus'></i> Add "+result.type+" to Queue</a></div></li>";
+}
+
+// The Queue
+$('#queue-heading').click(function(){
+    $('#queue-body').slideToggle();
+})
+
+
+/**
+ * icon: "http://img00.cdn2-rdio.com/album/4/3/3/0000000000421334/6/square-200.jpg"
+ * id: "a4330292"
+ * length: 22
+ * name: "Sing"
+ * object_type: "search_result"
+ * type: "album"
+ * url: "/artist/Ed_Sheeran/album/Sing/"
+ *
+ *
+ * icon: "http://rdio3img-a.akamaihd.net/artist/no-artist-image-square.png"
+ * id: "r3062875"
+ * length: 10
+ * name: "Ed Sheeran"
+ * object_type: "search_result"
+ * type: "artist"
+ * url: "/artist/Ed_Sheeran_1/"
+ *
+ *
+ * icon: "http://img00.cdn2-rdio.com/album/4/3/3/0000000000421334/6/square-200.jpg"
+ * id: "t46823439"
+ * length: 31
+ * name: "Sing"
+ * object_type: "search_result"
+ * radio_id: "sr46823439"
+ * type: "track"
+ * url: "/artist/Ed_Sheeran/album/Sing/track/Sing/"
+ */
+
 
 

@@ -10,60 +10,88 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,700' rel='stylesheet' type='text/css'>
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/main.css">
 
-        <!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-route.min.js"></script> -->
-
-        <!-- <script src="js/angular.min.js"></script> -->
     </head>
     <body>
 
         <div class="fullscreen-bg"></div>
+        <div id="the-player"></div>
 
-        <div class="container">
-            <div class="row">
-                <div id="the-player"></div>
-
-                <div class="multiple-datasets">
-                    <input type="text" class="form-control search-form" placeholder="Search Artist, Album, and Songs">
+        <section class="form-group search-container">
+            <div class="input-group">
+                <div class="input-group-addon">
+                Belly Rdio Player Challenge
+                    <!-- <select name="search-selector" id="">
+                        <option value="all">Artists, Albums, and Songs</option>
+                        <option value="artists">Artists</option>
+                        <option value="albums">Albums</option>
+                        <option value="songs">Songs</option>
+                    </select> -->
                 </div>
+                <input type="text" class="form-control search-form typeahead" placeholder="Search Artist, Album, and Songs">
+            </div>
+        </section>
 
-                <div class="progress">
-                  <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar">
-                    <span class="sr-only">0% Complete</span>
-                  </div>
+        <section class="the-player-container">
+            <div class="the-player-container-inner">
+
+                <div class="the-player-image">
+                    <img src="" alt="" id="track-image">
                 </div>
-
-                <img src="" alt="" id="track-image">
 
                 <div class="track-info">
+
                     <div id="track-name"></div>
                     <div id="album-name"></div>
                     <div id="artist-name"></div>
+
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar">
+                        <span class="sr-only">0% Complete</span>
+                      </div>
+                    </div>
+
+                    <div class="the-player-controls">
+                        <a href="javascript:;" id="previous-button" class="player-control"><i class="fa fa-backward"></i></a>
+                        <a href="javascript:;" id="play-button" class="player-control"><i class="fa fa-play"></i></a>
+                        <a href="javascript:;" id="pause-button" class="player-control hidden-player-control"><i class="fa fa-pause"></i></a>
+                        <!-- <a href="javascript:;" id="stop-button" class="player-control"><i class="fa fa-stop"></i></a> -->
+                        <a href="javascript:;" id="next-button" class="player-control"><i class="fa fa-forward"></i></a>
+                    </div>
+
                 </div>
 
-                <a href="javascript:;" id="previous-button" class="player-control"><i class="fa fa-backward"></i></a>
-                <a href="javascript:;" id="play-button" class="player-control"><i class="fa fa-play"></i></a>
-                <a href="javascript:;" id="pause-button" class="player-control"><i class="fa fa-pause"></i></a>
-                <a href="javascript:;" id="stop-button" class="player-control"><i class="fa fa-stop"></i></a>
-                <a href="javascript:;" id="next-button" class="player-control"><i class="fa fa-forward"></i></a>
-
-                <div id="search-results">
-                    <div id="artist-results-section">
-                        <ul id="artist-results"></ul>
-                    </div>
-                    <div id="album-results-section">
-                        <ul id="album-results"></ul>
-                    </div>
-                    <div id="track-results-section">
-                        <ul id="track-results"></ul>
-                    </div>
-                </div>
 
             </div>
-        </div>
+        </section>
+
+        <section class="queue-section">
+            <div class="the-queue">
+                <a href="javascript:;" id='queue-heading' class="queue-heading"><i class="fa fa-bars"></i>Queue (<span id="queue-qty">0</span>)</a>
+                <div id='queue-body' class="queue-body">
+                    <hr>
+                    <ul id="queue-listings" class="queue-listings">
+                        <li>Search for something to ad to your Queue!</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="search-results">
+            <div class="loading-results-section">
+                <h2>Searching...</h2>
+            </div>
+            <div id="album-results-section">
+                <ul id="album-results" class="results"></ul>
+            </div>
+            <div id="track-results-section">
+                <ul id="track-results" class="results"></ul>
+            </div>
+        </section>
+
 
         <script src="js/main.js"></script>
 

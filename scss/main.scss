@@ -4,10 +4,15 @@
 // Colors
 $white: #fff;
 $black: #000;
+$buttonGray: lighten(gray, 20);
 
 // Bootstrap
 @import 'settings';
 @import '../bower_components/bootstrap-sass-official/assets/stylesheets/bootstrap';
+
+// Variables
+$topbarHeight: 34px;
+$playerWidth: 200px;
 
 html, body{
     width: 100%;
@@ -16,6 +21,10 @@ html, body{
 
 body{
     -webkit-font-smoothing: antialiased;
+    font-family: "Open Sans";
+    font-weight: 300;
+    padding-top: $topbarHeight;
+    padding-left: $playerWidth;
 }
 
 .fullscreen-bg{
@@ -29,19 +38,263 @@ body{
     background-position: center;
     z-index: -1;
     @include filter(blur(150px) grayscale(0%));
+    @include transition(1s all);
 }
 
-#progress-bar{
-    background-color: gray;
+#the-player{
+    visibility: hidden;
+    height: 0;
+}
+
+.search-container{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    z-index: 99999;
+}
+
+.input-group-addon{
+    background-color: $black;
+    background-color: rgba($black, .8);
+    border: none;
+    border-radius: 0;
+    color: $buttonGray;
+}
+
+.search-form{
+    background-color: $black;
+    background-color: rgba($black, .8);
+    color: $buttonGray;
+    border:none;
+    border-radius: 0;
+    height: $topbarHeight;
+
+    &:focus{
+        outline: none;
+        box-shadow: none;
+    }
+}
+
+.the-player-container{
+    position: fixed;
+    top: $topbarHeight;
+    left: 0;
+    // right: 0;
+    background: $black;
+    background: rgba($black, .8);
+    color: $white;
+}
+
+.the-player-container-inner{
+    position: relative;
+}
+
+.the-player-image{
+    width: $playerWidth;
+    // display: inline;
+    // float: left;
+    img{
+        display: block;
+        width: 100%;
+    }
+}
+
+.track-info{
+    width: $playerWidth;
+    // display: inline;
+    // float: left;
+    padding: 1em;
+
+    #track-name{
+        font-size: 18px;
+        margin-bottom: 7px;
+    }
+
+    #artist-name{
+        margin-bottom: 2em;
+    }
+}
+
+// Player Controls
+
+.the-player-controls{
+    margin-top: 1em;
+    text-align: center;
+}
+
+.progress{
+    height: 4px;
+    margin-top: 1em;
+
+    #progress-bar{
+        background-color: $buttonGray;
+        // margin-top: 1em;
+    }
+}
+
+
+#play-button, #pause-button{
+    // border: 1px solid $buttonGray;
+    // border-radius: 50%;
+    // display: inline-block;
+    // padding: .6em 1em;
+    // text-align: center;
+
+    .hidden-player-control{
+        display: none;
+    }
 }
 
 .player-control{
-    color: lighten(gray, 10);
+    color: $buttonGray;
     font-size: 24px;
     margin-right: .7em;
     @include transition(.3s all);
 
     &:hover{
-        color: lighten(gray, 5);
+        color: lighten($buttonGray, 5);
+    }
+
+    &.hidden-player-control{
+        display: none;
     }
 }
+
+// The Queue
+.the-queue{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background-color: $black;
+    background-color: rgba($black, .8);
+    color: $white;
+    // display: none;
+    // float: left;
+    width: $playerWidth;
+    padding: 1em;
+    // border-left: 1px solid $buttonGray;
+
+    .queue-heading{
+        display: block;
+        color: $white;
+
+        &:hover{
+            text-decoration: none;
+        }
+
+        .fa{
+            margin-right: 6px;
+        }
+    }
+
+    .queue-body{
+        display: none;
+    }
+
+    .queue-listings{
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        max-height: 300px;
+        overflow: scroll;
+        li{
+            display: block;
+            margin-bottom: 1em;
+            padding-bottom: 1em;
+            border-bottom: 1px solid $buttonGray;
+            @include clearfix();
+
+            .queue-listing-image{
+                display: inline;
+                float: left;
+                width: 40px;
+                height: 40px;
+
+
+                img{
+                    display: block;
+                    width: 100%;
+                }
+            }
+
+            .queue-listing-info{
+                display: inline;
+                float: left;
+                width: 130px;
+                padding: 0 9px;
+                font-size: .9em;
+            }
+        }
+    }
+}
+
+.loading-results-section{
+    background-color: $white;
+    background-color: rgba($white, .8);
+    padding: 24px;
+    display: none;
+    h2{
+        margin: 0;
+    }
+}
+
+// Results
+.results{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li{
+        position: relative;
+        display: inline;
+        float: left;
+        width: $playerWidth;
+        height: $playerWidth;
+        margin: 0;
+        padding: 0;
+
+        .result-name{
+            background-color: $black;
+            background-color: rgba($black, .7);
+            color: $white;
+            text-align: center;
+            padding: 6px;
+        }
+
+        &:hover .hover-actions{
+            visibility: visible;
+            @include opacity(1);
+        }
+
+        .hover-actions{
+            visibility: hidden;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            @include opacity(0);
+            @include transition( .3s all);
+        }
+
+        .play-result, .queue-result{
+            display: inline-block;
+            background-color: $black;
+            background-color: rgba($black, .7);
+            color: $white;
+            padding: 6px 12px;
+            margin: 6px auto;
+            @include transition(.3s all);
+
+            .fa {
+                margin-right: 9px;
+            }
+
+            &:hover{
+                text-decoration: none;
+                background-color: rgba($black, .9);
+            }
+        }
+    }
+}
+
