@@ -2,7 +2,7 @@
   "name": "belly-player",
   "version": "0.0.1",
   "description": "Audio Player Challenge for Belly ",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,5 +17,8 @@
     "gulp-concat": "~2.4.1",
     "gulp-minify-css": "~0.3.7",
     "gulp-rename": "~1.2.0"
+  },
+  "dependencies": {
+    "express": "~4.10.1"
   }
 }
