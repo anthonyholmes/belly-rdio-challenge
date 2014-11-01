@@ -38,6 +38,7 @@ body{
     background-position: center;
     z-index: -1;
     @include filter(blur(150px) grayscale(0%));
+    filter: url(./filters/blur.svg#blur);
     @include transition(1s all);
 }
 
@@ -181,6 +182,11 @@ body{
         color: $white;
 
         &:hover{
+            text-decoration: none;
+        }
+
+        &:focus{
+            outline: none;
             text-decoration: none;
         }
 
