@@ -192,32 +192,36 @@ function searchRdio(query){
     });
 }
 
-$('.search-form').on('keyup', function(){
-    inputData = $(this).val();
+$('.search-form').on('keyup', function(e){
+    //on letter number or backspace or enter
+    if (e.which <= 90 && e.which >= 48 || e.which == 8 || e.which == 13 ) {
+        inputData = $(this).val();
 
-    window.clearTimeout(searchTimeout);
+        window.clearTimeout(searchTimeout);
 
-    // Search Form Blank
-    if(inputData === ""){
-        clearSearchResultsHtml();
-        loadingMessage.slideUp();
-        console.log('blank input');
-    }
-    // Search Form is less than 3 char
-    else if(inputData.length < 3){
-        clearSearchResultsHtml();
-        loadingMessage.slideUp();
-        console.log('search too short');
-    }
-    // Ok Let's Search
-    else{
-        loadingMessage.slideDown();
-        searchTimeout = window.setTimeout(function(){
-            searchRdio(inputData);
-            // console.log('searching');
+        // Search Form Blank
+        if(inputData === ""){
+            clearSearchResultsHtml();
+            loadingMessage.slideUp();
+            console.log('blank input');
+        }
+        // Search Form is less than 2 char
+        else if(inputData.length < 2){
+            clearSearchResultsHtml();
+            loadingMessage.slideUp();
+            console.log('search too short');
+        }
+        // Ok Let's Search
+        else{
+            loadingMessage.slideDown();
+            searchTimeout = window.setTimeout(function(){
+                searchRdio(inputData);
+                // console.log('searching');
 
-        }, 500);
+            }, 500);
+        }
     }
+
 
 });
 
