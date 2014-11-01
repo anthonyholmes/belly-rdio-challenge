@@ -200,15 +200,18 @@ $('.search-form').on('keyup', function(){
     // Search Form Blank
     if(inputData === ""){
         clearSearchResultsHtml();
+        loadingMessage.slideUp();
         console.log('blank input');
     }
     // Search Form is less than 3 char
     else if(inputData.length < 3){
         clearSearchResultsHtml();
+        loadingMessage.slideUp();
         console.log('search too short');
     }
     // Ok Let's Search
     else{
+        loadingMessage.slideDown();
         searchTimeout = window.setTimeout(function(){
             searchRdio(inputData);
             // console.log('searching');
