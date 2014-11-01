@@ -39,24 +39,28 @@
  */
 
 var rdioServiceUrl = 'http://rdio-service.herokuapp.com';
-
 var playbackToken;
+var thePlayer = $('#the-player');
+var duration;
 
 // Get the playback token if it doesn't exist in local storage
 if(window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0){
     playbackToken = window.localStorage.playbackToken;
+    // Initialize the Player
+    thePlayer.rdio(playbackToken);
     console.log('the token is stored');
 } else{
-    $.post(rdioServiceUrl + '/playback_tokens', function(returnedData){
+    $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function(returnedData){
         playbackToken = returnedData.data.playback_token;
         window.localStorage.playbackToken = playbackToken;
+        // Initialize the Player
+        thePlayer.rdio(playbackToken);
     });
 
     console.log('the token is not stored');
 }
 
-var thePlayer = $('#the-player');
-var duration;
+
 
 // When Queue changes
 thePlayer.bind('queueChanged.rdio', function(e, theQueue) {
@@ -118,10 +122,6 @@ thePlayer.bind('playStateChanged.rdio', function(e, playState) {
       }
     }
 });
-
-
-// Initialize the Player
-thePlayer.rdio(playbackToken);
 
 /**
  * ******************************
