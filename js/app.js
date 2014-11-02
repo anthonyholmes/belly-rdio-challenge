@@ -42,7 +42,13 @@ var window, playbackToken, duration;
 var rdioServiceUrl = 'http://rdio-service.herokuapp.com';
 var thePlayer = $('#the-player');
 
-// Get the playback token if it doesn't exist in local storage
+/**
+ * ******************************
+ * Playback Token
+ * ******************************
+ * Gets the playback token if not stored in local storage
+ */
+
 if (window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0) {
   playbackToken = window.localStorage.playbackToken;
 
@@ -52,6 +58,7 @@ if (window.localStorage.playbackToken && window.localStorage.playbackToken.lengt
   $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function (returnedData) {
     playbackToken = returnedData.data.playback_token;
     window.localStorage.playbackToken = playbackToken;
+
     // Initialize the Player
     thePlayer.rdio(playbackToken);
   });
@@ -63,13 +70,11 @@ if (window.localStorage.playbackToken && window.localStorage.playbackToken.lengt
  * ******************************
  */
 
-var playButton, pauseButton, stopButton, previousButton, nextButton;
-
-playButton = $('#play-button');
-pauseButton = $('#pause-button');
-stopButton = $('#stop-button');
-previousButton = $('#previous-button');
-nextButton = $('#next-button');
+var playButton = $('#play-button');
+var pauseButton = $('#pause-button');
+var stopButton = $('#stop-button');
+var previousButton = $('#previous-button');
+var nextButton = $('#next-button');
 
 playButton.click(function () {
   thePlayer.rdio().play();
@@ -162,16 +167,16 @@ thePlayer.bind('playStateChanged.rdio', function (e, playState) {
 
 var searchResults, albumResults, albumResultsUL, trackResults, trackResultsUL, searchTimeout, loadingMessage, resultId;
 
-function clearSearchResultsHtml() {
+var clearSearchResultsHtml = function () {
   albumResultsUL.html('');
   trackResultsUL.html('');
 }
 
-function searchResultTemplate(result) {
+var searchResultTemplate = function (result) {
   return "<li style=\"background-image: url(" + result.icon + ")\"><div class='result-name'>" + result.name + "</div><div class='hover-actions'><a href='javascript:;' class='play-result' data-rdio-id='" + result.id + "'><i class='fa fa-play'></i> Play this " + result.type + "</a><a href='javascript:;' class='queue-result' data-rdio-id='" + result.id + "'><i class='fa fa-plus'></i> Add " + result.type + " to Queue</a></div></li>";
 }
 
-function buildSearchResultsHtml() {
+var buildSearchResultsHtml = function () {
   $.each(albumResults, function (k, v) {
     albumResultsUL.append(searchResultTemplate(v));
   });
@@ -198,7 +203,7 @@ trackResultsUL = $('#track-results');
 
 loadingMessage = $('.loading-results-section');
 
-function searchRdio(query) {
+var searchRdio = function (query) {
   $.ajax({
     url: rdioServiceUrl + '/search',
     data: {q: query},
