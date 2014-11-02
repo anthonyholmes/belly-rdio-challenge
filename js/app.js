@@ -165,11 +165,16 @@ thePlayer.bind('playStateChanged.rdio', function (e, playState) {
  * ************************************
  */
 
-var searchResults, albumResults, albumResultsUL, trackResults, trackResultsUL, searchTimeout, loadingMessage, resultId;
+var searchResults, albumResults, trackResults, searchTimeout, resultId;
+
+// Clear Results HTML
+var albumResultsUL = $('#album-results');
+var trackResultsUL = $('#track-results');
+var loadingMessage = $('.loading-results-section');
 
 var clearSearchResultsHtml = function () {
-  albumResultsUL.html('');
-  trackResultsUL.html('');
+  albumResultsUL.empty();
+  trackResultsUL.empty();
 }
 
 var searchResultTemplate = function (result) {
@@ -196,12 +201,6 @@ var buildSearchResultsHtml = function () {
     thePlayer.rdio().queue(resultId);
   });
 }
-
-// Clear Results HTML
-albumResultsUL = $('#album-results');
-trackResultsUL = $('#track-results');
-
-loadingMessage = $('.loading-results-section');
 
 var searchRdio = function (query) {
   $.ajax({
