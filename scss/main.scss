@@ -40,6 +40,7 @@ body{
     @include filter(blur(150px) grayscale(0%));
     filter: url(./filters/blur.svg#blur);
     @include transition(1s all);
+    -webkit-backface-visibility: hidden;
 }
 
 #the-player{
