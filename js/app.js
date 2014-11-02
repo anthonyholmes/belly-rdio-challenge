@@ -245,37 +245,4 @@ function searchResultTemplate(result){
 // The Queue
 $('#queue-heading').click(function(){
     $('#queue-body').slideToggle();
-})
-
-
-/**
- * icon: "http://img00.cdn2-rdio.com/album/4/3/3/0000000000421334/6/square-200.jpg"
- * id: "a4330292"
- * length: 22
- * name: "Sing"
- * object_type: "search_result"
- * type: "album"
- * url: "/artist/Ed_Sheeran/album/Sing/"
- *
- *
- * icon: "http://rdio3img-a.akamaihd.net/artist/no-artist-image-square.png"
- * id: "r3062875"
- * length: 10
- * name: "Ed Sheeran"
- * object_type: "search_result"
- * type: "artist"
- * url: "/artist/Ed_Sheeran_1/"
- *
- *
- * icon: "http://img00.cdn2-rdio.com/album/4/3/3/0000000000421334/6/square-200.jpg"
- * id: "t46823439"
- * length: 31
- * name: "Sing"
- * object_type: "search_result"
- * radio_id: "sr46823439"
- * type: "track"
- * url: "/artist/Ed_Sheeran/album/Sing/track/Sing/"
- */
-
-
-
+});
