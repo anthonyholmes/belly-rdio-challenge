@@ -38,53 +38,91 @@
  * GET        /tracks/:track_id                        # Get a track for the given track_id
  */
 
+var window, playbackToken, duration;
 var rdioServiceUrl = 'http://rdio-service.herokuapp.com';
-var playbackToken;
 var thePlayer = $('#the-player');
-var duration;
 
 // Get the playback token if it doesn't exist in local storage
-if(window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0){
-    playbackToken = window.localStorage.playbackToken;
+if (window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0) {
+  playbackToken = window.localStorage.playbackToken;
 
+  // Initialize the Player
+  thePlayer.rdio(playbackToken);
+} else {
+  $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function (returnedData) {
+    playbackToken = returnedData.data.playback_token;
+    window.localStorage.playbackToken = playbackToken;
     // Initialize the Player
     thePlayer.rdio(playbackToken);
-} else{
-    $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function(returnedData){
-        playbackToken = returnedData.data.playback_token;
-        window.localStorage.playbackToken = playbackToken;
-        // Initialize the Player
-        thePlayer.rdio(playbackToken);
-    });
+  });
 }
 
+/**
+ * ******************************
+ * Player Control Buttons
+ * ******************************
+ */
 
+var playButton, pauseButton, stopButton, previousButton, nextButton;
+
+playButton = $('#play-button');
+pauseButton = $('#pause-button');
+stopButton = $('#stop-button');
+previousButton = $('#previous-button');
+nextButton = $('#next-button');
+
+playButton.click(function () {
+  thePlayer.rdio().play();
+});
+
+pauseButton.click(function () {
+  thePlayer.rdio().pause();
+});
+
+stopButton.click(function () {
+  thePlayer.rdio().stop();
+});
+
+previousButton.click(function () {
+  thePlayer.rdio().previous();
+});
+
+nextButton.click(function () {
+  thePlayer.rdio().next();
+});
+
+/**
+ * ************************************
+ * Event Listeners
+ * ************************************
+ */
+
+// When player is ready
+thePlayer.bind('ready.rdio', function () {
+  $(this).rdio().queue('a975630');
+  // $(this).rdio().queue('t48620816');
+});
+
+var queueResultTemplate = function (result) {
+  return "<li><div class='queue-listing-image'><img src='" + result.icon + "' /></div><div class='queue-listing-info'><div class='result-name'>" + result.name + "</div><div class='result-artist'>" + result.artist + "</div></div></li>";
+};
 
 // When Queue changes
-thePlayer.bind('queueChanged.rdio', function(e, theQueue) {
+thePlayer.bind('queueChanged.rdio', function (e, theQueue) {
 
   $('#queue-qty').text(theQueue.length);
 
   var queueListings = $('#queue-listings');
   queueListings.html('');
 
-  $.each(theQueue, function(i,v){
+  $.each(theQueue, function (i, v) {
     $('#queue-listings').append(queueResultTemplate(v));
   });
-});
 
-function queueResultTemplate(result){
-    return "<li><div class='queue-listing-image'><img src='" + result.icon + "' /></div><div class='queue-listing-info'><div class='result-name'>"+result.name+"</div><div class='result-artist'>"+result.artist+"</div></div></li>";
-}
-
-// When player is ready
-thePlayer.bind('ready.rdio', function() {
-    $(this).rdio().queue('a975630');
-    // $(this).rdio().queue('t48620816');
 });
 
 // When the track gets changed
-thePlayer.bind('playingTrackChanged.rdio', function(e, playingTrack, sourcePosition) {
+thePlayer.bind('playingTrackChanged.rdio', function (e, playingTrack, sourcePosition) {
   if (playingTrack) {
     duration = playingTrack.duration;
     $('#track-image').attr('src', playingTrack.icon);
@@ -96,60 +134,25 @@ thePlayer.bind('playingTrackChanged.rdio', function(e, playingTrack, sourcePosit
 });
 
 // When song position changes
-thePlayer.bind('positionChanged.rdio', function(e, position) {
-  $('#progress-bar').css('width', Math.floor(100*position/duration)+'%');
+thePlayer.bind('positionChanged.rdio', function (e, position) {
+  $('#progress-bar').css('width', Math.floor(100 * position / duration) + '%');
 });
 
 // Play
-thePlayer.bind('playStateChanged.rdio', function(e, playState) {
-    var playPauseHidden = $('.hidden-player-control').attr('id');
-    if (playState == 0) { // paused
-      if(playPauseHidden === 'play-button'){
-        playButton.toggleClass('hidden-player-control');
-        pauseButton.toggleClass('hidden-player-control');
-      }
-    } else {
-      if(playPauseHidden === 'pause-button'){
-        playButton.toggleClass('hidden-player-control');
-        pauseButton.toggleClass('hidden-player-control');
-      }
+thePlayer.bind('playStateChanged.rdio', function (e, playState) {
+  var playPauseHidden = $('.hidden-player-control').attr('id');
+  if (playState === 0) { // paused
+    if (playPauseHidden === 'play-button') {
+      playButton.toggleClass('hidden-player-control');
+      pauseButton.toggleClass('hidden-player-control');
     }
+  } else {
+    if (playPauseHidden === 'pause-button') {
+      playButton.toggleClass('hidden-player-control');
+      pauseButton.toggleClass('hidden-player-control');
+    }
+  }
 });
-
-/**
- * ******************************
- * Player Control Buttons
- * ******************************
- */
-
-var playButton, pauseButton, stopButton;
-
-playButton = $('#play-button');
-pauseButton = $('#pause-button');
-stopButton = $('#stop-button');
-previousButton = $('#previous-button');
-nextButton = $('#next-button');
-
-playButton.click(function(){
-    thePlayer.rdio().play();
-});
-
-pauseButton.click(function(){
-    thePlayer.rdio().pause();
-});
-
-stopButton.click(function(){
-    thePlayer.rdio().stop();
-});
-
-previousButton.click(function(){
-    thePlayer.rdio().previous();
-});
-
-nextButton.click(function(){
-    thePlayer.rdio().next();
-});
-
 
 /**
  * ************************************
@@ -157,7 +160,37 @@ nextButton.click(function(){
  * ************************************
  */
 
-var searchResults, albumResults, trackResults, searchTimeout, loadingMessage;
+var searchResults, albumResults, albumResultsUL, trackResults, trackResultsUL, searchTimeout, loadingMessage, resultId;
+
+function clearSearchResultsHtml() {
+  albumResultsUL.html('');
+  trackResultsUL.html('');
+}
+
+function searchResultTemplate(result) {
+  return "<li style=\"background-image: url(" + result.icon + ")\"><div class='result-name'>" + result.name + "</div><div class='hover-actions'><a href='javascript:;' class='play-result' data-rdio-id='" + result.id + "'><i class='fa fa-play'></i> Play this " + result.type + "</a><a href='javascript:;' class='queue-result' data-rdio-id='" + result.id + "'><i class='fa fa-plus'></i> Add " + result.type + " to Queue</a></div></li>";
+}
+
+function buildSearchResultsHtml() {
+  $.each(albumResults, function (k, v) {
+    albumResultsUL.append(searchResultTemplate(v));
+  });
+
+  $.each(trackResults, function (k, v) {
+    trackResultsUL.append(searchResultTemplate(v));
+  });
+
+  // Search Result Actions
+  $('.play-result').click(function () {
+    resultId = $(this).data('rdio-id');
+    thePlayer.rdio().play(resultId);
+  });
+
+  $('.queue-result').click(function () {
+    resultId = $(this).data('rdio-id');
+    thePlayer.rdio().queue(resultId);
+  });
+}
 
 // Clear Results HTML
 albumResultsUL = $('#album-results');
@@ -165,84 +198,48 @@ trackResultsUL = $('#track-results');
 
 loadingMessage = $('.loading-results-section');
 
-function searchRdio(query){
-    $.ajax({
-        url: rdioServiceUrl + '/search',
-        data: {q: query},
-        success: function(data){
-            searchResults = data.data;
+function searchRdio(query) {
+  $.ajax({
+    url: rdioServiceUrl + '/search',
+    data: {q: query},
+    success: function (data) {
+      searchResults = data.data;
 
-            // Filter Results
-            albumResults = _.where(searchResults, {type: 'album'});
-            trackResults = _.where(searchResults, {type: 'track'});
+      // Filter Results
+      albumResults = _.where(searchResults, {type: 'album'});
+      trackResults = _.where(searchResults, {type: 'track'});
 
-            loadingMessage.slideUp();
-            clearSearchResultsHtml();
-            buildSearchResultsHtml();
-        }
-    });
+      loadingMessage.slideUp();
+      clearSearchResultsHtml();
+      buildSearchResultsHtml();
+    }
+  });
 }
 
-$('.search-form').on('keyup', function(e){
-    //on letter number or backspace or enter
-    if (e.which <= 90 && e.which >= 48 || e.which == 8 || e.which == 13 ) {
-        inputData = $(this).val();
+$('.search-form').on('keyup', function (e) {
+  // On letter number or backspace or enter
+  if ((e.which <= 90 && e.which >= 48) || e.which === 8 || e.which === 13) {
+    var inputData = $(this).val();
 
-        window.clearTimeout(searchTimeout);
+    window.clearTimeout(searchTimeout);
 
-        // Search Form Blank
-        if(inputData === ""){
-            clearSearchResultsHtml();
-            loadingMessage.slideUp();
-        }
-        // Search Form is less than 2 char
-        else if(inputData.length < 2){
-            clearSearchResultsHtml();
-            loadingMessage.slideUp();
-        }
-        // Ok Let's Search
-        else{
-            loadingMessage.slideDown();
-            searchTimeout = window.setTimeout(function(){
-                searchRdio(inputData);
-            }, 500);
-        }
+    if (inputData === "") { // Search Form Blank
+      clearSearchResultsHtml();
+      loadingMessage.slideUp();
+    } else if (inputData.length < 2) { // Too Short
+      clearSearchResultsHtml();
+      loadingMessage.slideUp();
+    } else { // Let's Search
+      loadingMessage.slideDown();
+      searchTimeout = window.setTimeout(function () {
+        searchRdio(inputData);
+      }, 500);
     }
-
+  }
 
 });
 
-function clearSearchResultsHtml(){
-    albumResultsUL.html('');
-    trackResultsUL.html('');
-}
-
-function buildSearchResultsHtml(){
-    $.each(albumResults, function(k,v){
-        albumResultsUL.append(searchResultTemplate(v));
-    });
-
-    $.each(trackResults, function(k,v){
-        trackResultsUL.append(searchResultTemplate(v));
-    });
-
-    // Search Result Actions
-    $('.play-result').click(function(){
-        resultId = $(this).data('rdio-id');
-        thePlayer.rdio().play(resultId);
-    });
-
-    $('.queue-result').click(function(){
-        resultId = $(this).data('rdio-id');
-        thePlayer.rdio().queue(resultId);
-    });
-}
-
-function searchResultTemplate(result){
-    return "<li style=\"background-image: url(" + result.icon + ")\"><div class='result-name'>"+result.name+"</div><div class='hover-actions'><a href='javascript:;' class='play-result' data-rdio-id='" + result.id + "'><i class='fa fa-play'></i> Play this "+result.type+"</a><a href='javascript:;' class='queue-result' data-rdio-id='" + result.id + "'><i class='fa fa-plus'></i> Add "+result.type+" to Queue</a></div></li>";
-}
-
 // The Queue
-$('#queue-heading').click(function(){
-    $('#queue-body').slideToggle();
+$('#queue-heading').click(function () {
+  $('#queue-body').slideToggle();
 });
