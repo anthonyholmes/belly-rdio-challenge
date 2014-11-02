@@ -46,9 +46,9 @@ var duration;
 // Get the playback token if it doesn't exist in local storage
 if(window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0){
     playbackToken = window.localStorage.playbackToken;
+
     // Initialize the Player
     thePlayer.rdio(playbackToken);
-    console.log('the token is stored');
 } else{
     $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function(returnedData){
         playbackToken = returnedData.data.playback_token;
@@ -56,15 +56,12 @@ if(window.localStorage.playbackToken && window.localStorage.playbackToken.length
         // Initialize the Player
         thePlayer.rdio(playbackToken);
     });
-
-    console.log('the token is not stored');
 }
 
 
 
 // When Queue changes
 thePlayer.bind('queueChanged.rdio', function(e, theQueue) {
-  console.log('queue changed');
 
   $('#queue-qty').text(theQueue.length);
 
@@ -74,7 +71,6 @@ thePlayer.bind('queueChanged.rdio', function(e, theQueue) {
   $.each(theQueue, function(i,v){
     $('#queue-listings').append(queueResultTemplate(v));
   });
-  console.log(theQueue);
 });
 
 function queueResultTemplate(result){
@@ -85,7 +81,6 @@ function queueResultTemplate(result){
 thePlayer.bind('ready.rdio', function() {
     $(this).rdio().queue('a975630');
     // $(this).rdio().queue('t48620816');
-    // id: "t48620816"length: 31name: "Love Someone"object_type: "search_result"radio_id: "sr48620816"
 });
 
 // When the track gets changed
@@ -103,13 +98,11 @@ thePlayer.bind('playingTrackChanged.rdio', function(e, playingTrack, sourcePosit
 // When song position changes
 thePlayer.bind('positionChanged.rdio', function(e, position) {
   $('#progress-bar').css('width', Math.floor(100*position/duration)+'%');
-  // console.log(position);
 });
 
 // Play
 thePlayer.bind('playStateChanged.rdio', function(e, playState) {
     var playPauseHidden = $('.hidden-player-control').attr('id');
-    // console.log(playPauseHidden);
     if (playState == 0) { // paused
       if(playPauseHidden === 'play-button'){
         playButton.toggleClass('hidden-player-control');
@@ -164,11 +157,10 @@ nextButton.click(function(){
  * ************************************
  */
 
-var searchResults, albumResults, trackResults, artistResults, searchTimeout, loadingMessage;
+var searchResults, albumResults, trackResults, searchTimeout, loadingMessage;
 
 // Clear Results HTML
 albumResultsUL = $('#album-results');
-artistResultsUL = $('#artist-results');
 trackResultsUL = $('#track-results');
 
 loadingMessage = $('.loading-results-section');
@@ -182,7 +174,6 @@ function searchRdio(query){
 
             // Filter Results
             albumResults = _.where(searchResults, {type: 'album'});
-            artistResults = _.where(searchResults, {type: 'artist'});
             trackResults = _.where(searchResults, {type: 'track'});
 
             loadingMessage.slideUp();
@@ -203,21 +194,17 @@ $('.search-form').on('keyup', function(e){
         if(inputData === ""){
             clearSearchResultsHtml();
             loadingMessage.slideUp();
-            console.log('blank input');
         }
         // Search Form is less than 2 char
         else if(inputData.length < 2){
             clearSearchResultsHtml();
             loadingMessage.slideUp();
-            console.log('search too short');
         }
         // Ok Let's Search
         else{
             loadingMessage.slideDown();
             searchTimeout = window.setTimeout(function(){
                 searchRdio(inputData);
-                // console.log('searching');
-
             }, 500);
         }
     }
@@ -227,7 +214,6 @@ $('.search-form').on('keyup', function(e){
 
 function clearSearchResultsHtml(){
     albumResultsUL.html('');
-    artistResultsUL.html('');
     trackResultsUL.html('');
 }
 
@@ -235,10 +221,6 @@ function buildSearchResultsHtml(){
     $.each(albumResults, function(k,v){
         albumResultsUL.append(searchResultTemplate(v));
     });
-
-    // $.each(artistResults, function(k,v){
-    //     artistResultsUL.append(searchResultTemplate(v));
-    // });
 
     $.each(trackResults, function(k,v){
         trackResultsUL.append(searchResultTemplate(v));
