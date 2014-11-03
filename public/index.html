@@ -3,12 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Belly Challenge - Music Player</title>
-        <meta name="description" content="">
+        <title>Belly Rdio Player Challenge</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
 
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,700' rel='stylesheet' type='text/css'>
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
@@ -20,51 +16,36 @@
         <div class="fullscreen-bg"></div>
         <div id="the-player"></div>
 
-
         <section class="form-group search-container">
             <div class="input-group">
                 <div class="input-group-addon">
-                Belly Rdio Player Challenge
-                    <!-- <select name="search-selector" id="">
-                        <option value="all">Artists, Albums, and Songs</option>
-                        <option value="artists">Artists</option>
-                        <option value="albums">Albums</option>
-                        <option value="songs">Songs</option>
-                    </select> -->
+                    Belly Rdio Player Challenge
                 </div>
-                <input type="text" class="form-control search-form typeahead" placeholder="Search Artist, Album, and Songs">
+                <input type="text" class="form-control search-form typeahead" placeholder="Search Artist, Album, and Songs" />
             </div>
         </section>
 
         <section class="the-player-container">
             <div class="the-player-container-inner">
-
                 <div class="the-player-image">
                     <img src="" alt="" id="track-image">
                 </div>
-
                 <div class="track-info">
-
                     <div id="track-name"></div>
                     <div id="album-name"></div>
                     <div id="artist-name"></div>
-
                     <div class="progress">
                       <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar">
                         <span class="sr-only">0% Complete</span>
                       </div>
                     </div>
-
                     <div class="the-player-controls">
                         <a href="javascript:;" id="previous-button" class="player-control"><i class="fa fa-backward"></i></a>
                         <a href="javascript:;" id="play-button" class="player-control"><i class="fa fa-play"></i></a>
                         <a href="javascript:;" id="pause-button" class="player-control hidden-player-control"><i class="fa fa-pause"></i></a>
-                        <!-- <a href="javascript:;" id="stop-button" class="player-control"><i class="fa fa-stop"></i></a> -->
                         <a href="javascript:;" id="next-button" class="player-control"><i class="fa fa-forward"></i></a>
                     </div>
-
                 </div>
-
             </div>
         </section>
 
