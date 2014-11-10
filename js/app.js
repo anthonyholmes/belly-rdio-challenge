@@ -44,6 +44,48 @@ var thePlayer = $('#the-player');
 
 /**
  * ******************************
+ * Angular
+ * ******************************
+ *
+ */
+var bellyRdioApp = angular.module('bellyRdioApp', []);
+
+bellyRdioApp.controller("bellyRdioAppController", ['$scope', '$http', function ($scope, $http) {
+
+  $scope.search = function (e) {
+    // On letter number or backspace or enter
+    if ((e.keyCode <= 90 && e.keyCode >= 48) || e.keyCode === 8 || e.keyCode === 13) {
+      window.clearTimeout(searchTimeout);
+
+      if ($scope.searchInput === "") {
+        $scope.albumResults = {};
+        $scope.trackResults = {};
+        loadingMessage.slideUp();
+      } else if ($scope.searchInput.length < 2) {
+        $scope.albumResults = {};
+        $scope.trackResults = {};
+
+      } else {
+        loadingMessage.slideDown();
+        searchTimeout = window.setTimeout(function () {
+
+          $http.get(rdioServiceUrl + '/search', { params: { q: $scope.searchInput } } )
+            .success(function (data) {
+              loadingMessage.slideUp();
+              $scope.albumResults = _.where(data.data, {type: 'album'});
+              $scope.trackResults = _.where(data.data, {type: 'track'});
+            });
+
+
+        }, 500);
+      }
+    }
+  }
+
+}]);
+
+/**
+ * ******************************
  * Playback Token
  * ******************************
  * Gets the playback token if not stored in local storage
@@ -220,28 +262,29 @@ var searchRdio = function (query) {
   });
 }
 
-$('.search-form').on('keyup', function (e) {
-  // On letter number or backspace or enter
-  if ((e.which <= 90 && e.which >= 48) || e.which === 8 || e.which === 13) {
-    var inputData = $(this).val();
+// $('.search-form').on('keyup', function (e) {
 
-    window.clearTimeout(searchTimeout);
+//   // On letter number or backspace or enter
+//   if ((e.which <= 90 && e.which >= 48) || e.which === 8 || e.which === 13) {
+//     var inputData = $(this).val();
 
-    if (inputData === "") { // Search Form Blank
-      clearSearchResultsHtml();
-      loadingMessage.slideUp();
-    } else if (inputData.length < 2) { // Too Short
-      clearSearchResultsHtml();
-      loadingMessage.slideUp();
-    } else { // Let's Search
-      loadingMessage.slideDown();
-      searchTimeout = window.setTimeout(function () {
-        searchRdio(inputData);
-      }, 500);
-    }
-  }
+//     window.clearTimeout(searchTimeout);
 
-});
+//     if (inputData === "") { // Search Form Blank
+//       clearSearchResultsHtml();
+//       loadingMessage.slideUp();
+//     } else if (inputData.length < 2) { // Too Short
+//       clearSearchResultsHtml();
+//       loadingMessage.slideUp();
+//     } else { // Let's Search
+//       loadingMessage.slideDown();
+//       searchTimeout = window.setTimeout(function () {
+//         searchRdio(inputData);
+//       }, 500);
+//     }
+//   }
+
+// });
 
 // The Queue
 $('#queue-heading').click(function () {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html class="no-js" lang="" ng-app="bellyRdioApp">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,8 +10,10 @@
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/main.css">
 
+        <script src="js/angular/angular.js"></script>
+
     </head>
-    <body>
+    <body ng-controller="bellyRdioAppController">
 
         <div class="fullscreen-bg"></div>
         <div id="the-player"></div>
@@ -21,7 +23,7 @@
                 <div class="input-group-addon">
                     Belly Rdio Player Challenge
                 </div>
-                <input type="text" class="form-control search-form typeahead" placeholder="Search Artist, Album, and Songs" />
+                <input type="text" class="form-control search-form typeahead" placeholder="Search Artist, Album, and Songs" ng-model="searchInput" ng-keyup="search($event)" />
             </div>
         </section>
 
@@ -66,10 +68,26 @@
                 <h2>Searching...</h2>
             </div>
             <div id="album-results-section">
-                <ul id="album-results" class="results"></ul>
+                <ul id="album-results" class="results">
+                    <li ng-repeat="result in albumResults" style="background-image: url({{ result.icon }})">
+                        <div class='result-name'>{{ result.name }}</div>
+                        <div class='hover-actions'>
+                            <a href='javascript:;' class='play-result' data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
+                            <a href='javascript:;' class='queue-result' data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
+                        </div>
+                    </li>
+                </ul>
             </div>
             <div id="track-results-section">
-                <ul id="track-results" class="results"></ul>
+                <ul id="track-results" class="results">
+                    <li ng-repeat="result in trackResults" style="background-image: url({{ result.icon }})">
+                        <div class='result-name'>{{ result.name }}</div>
+                        <div class='hover-actions'>
+                            <a href='javascript:;' class='play-result' data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
+                            <a href='javascript:;' class='queue-result' data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </section>
 
