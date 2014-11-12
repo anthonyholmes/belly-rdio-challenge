@@ -38,19 +38,19 @@
  * GET        /tracks/:track_id                        # Get a track for the given track_id
  */
 
-var window, playbackToken, duration;
+var window, playbackToken, duration, searchTimeout;
 var rdioServiceUrl = 'http://rdio-service.herokuapp.com';
 var thePlayer = $('#the-player');
+var playbackToken = 'GAlUVAgn_____3h4NWV0bXZiNThiNDRqOGVmOXQ3cG4zdWxvY2FsaG9zdGEiuZGizYQG__z3RIph0is=';
+var loadingMessage = $('.loading-results-section');
 
-/**
- * ******************************
- * Angular
- * ******************************
- *
- */
+// Start Angular
 var bellyRdioApp = angular.module('bellyRdioApp', []);
 
 bellyRdioApp.controller("bellyRdioAppController", ['$scope', '$http', function ($scope, $http) {
+  $scope.queueQty = 0;
+  $scope.thePlayer = document.getElementById('the-player');
+  $scope.duration = 0;
 
   $scope.search = function (e) {
     // On letter number or backspace or enter
@@ -76,215 +76,101 @@ bellyRdioApp.controller("bellyRdioAppController", ['$scope', '$http', function (
               $scope.trackResults = _.where(data.data, {type: 'track'});
             });
 
-
         }, 500);
       }
     }
-  }
+  };
 
-}]);
+  thePlayer.bind('ready.rdio', function () {
+    thePlayer.rdio().queue('a975630');
+  });
 
-/**
- * ******************************
- * Playback Token
- * ******************************
- * Gets the playback token if not stored in local storage
- */
+  thePlayer.bind('queueChanged.rdio', function (e, theQueue) {
 
-if (window.localStorage.playbackToken && window.localStorage.playbackToken.length > 0) {
-  playbackToken = window.localStorage.playbackToken;
+    $scope.$apply(function () {
+      $scope.queueQty = theQueue.length;
+      $scope.queueListings = theQueue;
+    });
+
+  });
+
+  // When the track gets changed
+  thePlayer.bind('playingTrackChanged.rdio', function (e, playingTrack, sourcePosition) {
+
+    $scope.$apply(function () {
+      if (playingTrack) {
+        duration = playingTrack.duration;
+        $scope.trackPlaying = {
+          icon: playingTrack.icon,
+          name: playingTrack.name,
+          album: playingTrack.album,
+          artist: playingTrack.artist
+        };
+      }
+    });
+
+  });
+
+  // When song position changes
+  thePlayer.bind('positionChanged.rdio', function (e, position) {
+    $scope.$apply(function () {
+      $scope.duration = Math.floor(100 * position / duration) + '%';
+    });
+  });
+
+  // Play State Changes
+  thePlayer.bind('playStateChanged.rdio', function (e, playState) {
+    var playPauseHidden = $('.hidden-player-control').attr('id');
+    var playButton = $('#play-button');
+    var pauseButton = $('#pause-button');
+    if (playState === 0) { // paused
+      if (playPauseHidden === 'play-button') {
+        playButton.toggleClass('hidden-player-control');
+        pauseButton.toggleClass('hidden-player-control');
+      }
+    } else {
+      if (playPauseHidden === 'pause-button') {
+        playButton.toggleClass('hidden-player-control');
+        pauseButton.toggleClass('hidden-player-control');
+      }
+    }
+  });
+
+  // Actions
+
+  $scope.playResult = function (id) {
+    thePlayer.rdio().play(id);
+  };
+
+  $scope.queueResult = function (id) {
+    thePlayer.rdio().queue(id);
+  };
+
+  // Player controls
+  $scope.play = function () {
+    thePlayer.rdio().play();
+  };
+
+  $scope.pause = function () {
+    thePlayer.rdio().pause();
+  };
+
+  $scope.stop = function () {
+    thePlayer.rdio().stop();
+  };
+
+  $scope.previous = function () {
+    thePlayer.rdio().previous();
+  };
+
+  $scope.next = function () {
+    thePlayer.rdio().next();
+  };
 
   // Initialize the Player
   thePlayer.rdio(playbackToken);
-} else {
-  $.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function (returnedData) {
-    playbackToken = returnedData.data.playback_token;
-    window.localStorage.playbackToken = playbackToken;
 
-    // Initialize the Player
-    thePlayer.rdio(playbackToken);
-  });
-}
-
-/**
- * ******************************
- * Player Control Buttons
- * ******************************
- */
-
-var playButton = $('#play-button');
-var pauseButton = $('#pause-button');
-var stopButton = $('#stop-button');
-var previousButton = $('#previous-button');
-var nextButton = $('#next-button');
-
-playButton.click(function () {
-  thePlayer.rdio().play();
-});
-
-pauseButton.click(function () {
-  thePlayer.rdio().pause();
-});
-
-stopButton.click(function () {
-  thePlayer.rdio().stop();
-});
-
-previousButton.click(function () {
-  thePlayer.rdio().previous();
-});
-
-nextButton.click(function () {
-  thePlayer.rdio().next();
-});
-
-/**
- * ************************************
- * Event Listeners
- * ************************************
- */
-
-// When player is ready
-thePlayer.bind('ready.rdio', function () {
-  $(this).rdio().queue('a975630');
-  // $(this).rdio().queue('t48620816');
-});
-
-var queueResultTemplate = function (result) {
-  return "<li><div class='queue-listing-image'><img src='" + result.icon + "' /></div><div class='queue-listing-info'><div class='result-name'>" + result.name + "</div><div class='result-artist'>" + result.artist + "</div></div></li>";
-};
-
-// When Queue changes
-thePlayer.bind('queueChanged.rdio', function (e, theQueue) {
-
-  $('#queue-qty').text(theQueue.length);
-
-  var queueListings = $('#queue-listings');
-  queueListings.html('');
-
-  $.each(theQueue, function (i, v) {
-    $('#queue-listings').append(queueResultTemplate(v));
-  });
-
-});
-
-// When the track gets changed
-thePlayer.bind('playingTrackChanged.rdio', function (e, playingTrack, sourcePosition) {
-  if (playingTrack) {
-    duration = playingTrack.duration;
-    $('#track-image').attr('src', playingTrack.icon);
-    $('#track-name').text(playingTrack.name);
-    $('#album-name').text(playingTrack.album);
-    $('#artist-name').text(playingTrack.artist);
-    $('.fullscreen-bg').css('background-image', 'url(' + playingTrack.icon + ')');
-  }
-});
-
-// When song position changes
-thePlayer.bind('positionChanged.rdio', function (e, position) {
-  $('#progress-bar').css('width', Math.floor(100 * position / duration) + '%');
-});
-
-// Play
-thePlayer.bind('playStateChanged.rdio', function (e, playState) {
-  var playPauseHidden = $('.hidden-player-control').attr('id');
-  if (playState === 0) { // paused
-    if (playPauseHidden === 'play-button') {
-      playButton.toggleClass('hidden-player-control');
-      pauseButton.toggleClass('hidden-player-control');
-    }
-  } else {
-    if (playPauseHidden === 'pause-button') {
-      playButton.toggleClass('hidden-player-control');
-      pauseButton.toggleClass('hidden-player-control');
-    }
-  }
-});
-
-/**
- * ************************************
- * Search Functions
- * ************************************
- */
-
-var searchResults, albumResults, trackResults, searchTimeout, resultId;
-
-// Clear Results HTML
-var albumResultsUL = $('#album-results');
-var trackResultsUL = $('#track-results');
-var loadingMessage = $('.loading-results-section');
-
-var clearSearchResultsHtml = function () {
-  albumResultsUL.empty();
-  trackResultsUL.empty();
-}
-
-var searchResultTemplate = function (result) {
-  return "<li style=\"background-image: url(" + result.icon + ")\"><div class='result-name'>" + result.name + "</div><div class='hover-actions'><a href='javascript:;' class='play-result' data-rdio-id='" + result.id + "'><i class='fa fa-play'></i> Play this " + result.type + "</a><a href='javascript:;' class='queue-result' data-rdio-id='" + result.id + "'><i class='fa fa-plus'></i> Add " + result.type + " to Queue</a></div></li>";
-}
-
-var buildSearchResultsHtml = function () {
-  $.each(albumResults, function (k, v) {
-    albumResultsUL.append(searchResultTemplate(v));
-  });
-
-  $.each(trackResults, function (k, v) {
-    trackResultsUL.append(searchResultTemplate(v));
-  });
-
-  // Search Result Actions
-  $('.play-result').click(function () {
-    resultId = $(this).data('rdio-id');
-    thePlayer.rdio().play(resultId);
-  });
-
-  $('.queue-result').click(function () {
-    resultId = $(this).data('rdio-id');
-    thePlayer.rdio().queue(resultId);
-  });
-}
-
-var searchRdio = function (query) {
-  $.ajax({
-    url: rdioServiceUrl + '/search',
-    data: {q: query},
-    success: function (data) {
-      searchResults = data.data;
-
-      // Filter Results
-      albumResults = _.where(searchResults, {type: 'album'});
-      trackResults = _.where(searchResults, {type: 'track'});
-
-      loadingMessage.slideUp();
-      clearSearchResultsHtml();
-      buildSearchResultsHtml();
-    }
-  });
-}
-
-// $('.search-form').on('keyup', function (e) {
-
-//   // On letter number or backspace or enter
-//   if ((e.which <= 90 && e.which >= 48) || e.which === 8 || e.which === 13) {
-//     var inputData = $(this).val();
-
-//     window.clearTimeout(searchTimeout);
-
-//     if (inputData === "") { // Search Form Blank
-//       clearSearchResultsHtml();
-//       loadingMessage.slideUp();
-//     } else if (inputData.length < 2) { // Too Short
-//       clearSearchResultsHtml();
-//       loadingMessage.slideUp();
-//     } else { // Let's Search
-//       loadingMessage.slideDown();
-//       searchTimeout = window.setTimeout(function () {
-//         searchRdio(inputData);
-//       }, 500);
-//     }
-//   }
-
-// });
+}]);
 
 // The Queue
 $('#queue-heading').click(function () {

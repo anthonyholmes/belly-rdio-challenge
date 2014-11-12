@@ -15,7 +15,7 @@
     </head>
     <body ng-controller="bellyRdioAppController">
 
-        <div class="fullscreen-bg"></div>
+        <div class="fullscreen-bg" style="background-image: url({{ trackPlaying.icon }})"></div>
         <div id="the-player"></div>
 
         <section class="form-group search-container">
@@ -30,22 +30,22 @@
         <section class="the-player-container">
             <div class="the-player-container-inner">
                 <div class="the-player-image">
-                    <img src="" alt="" id="track-image">
+                    <img src="{{ trackPlaying.icon }}" alt="" id="track-image">
                 </div>
                 <div class="track-info">
-                    <div id="track-name"></div>
-                    <div id="album-name"></div>
-                    <div id="artist-name"></div>
+                    <div id="track-name">{{ trackPlaying.name }}</div>
+                    <div id="album-name">{{ trackPlaying.album }}</div>
+                    <div id="artist-name">{{ trackPlaying.artist }}</div>
                     <div class="progress">
-                      <div class="progress-bar progress-bar-success" id="progress-bar" role="progressbar">
+                      <div class="progress-bar progress-bar-success" id="progress-bar" style="width: {{ duration }}" role="progressbar">
                         <span class="sr-only">0% Complete</span>
                       </div>
                     </div>
                     <div class="the-player-controls">
-                        <a href="javascript:;" id="previous-button" class="player-control"><i class="fa fa-backward"></i></a>
-                        <a href="javascript:;" id="play-button" class="player-control"><i class="fa fa-play"></i></a>
-                        <a href="javascript:;" id="pause-button" class="player-control hidden-player-control"><i class="fa fa-pause"></i></a>
-                        <a href="javascript:;" id="next-button" class="player-control"><i class="fa fa-forward"></i></a>
+                        <a href="javascript:;" id="previous-button" ng-click="previous()" class="player-control"><i class="fa fa-backward"></i></a>
+                        <a href="javascript:;" id="play-button" ng-click="play()" class="player-control"><i class="fa fa-play"></i></a>
+                        <a href="javascript:;" id="pause-button" ng-click="pause()" class="player-control hidden-player-control"><i class="fa fa-pause"></i></a>
+                        <a href="javascript:;" id="next-button" ng-click="next()" class="player-control"><i class="fa fa-forward"></i></a>
                     </div>
                 </div>
             </div>
@@ -53,11 +53,19 @@
 
         <section class="queue-section">
             <div class="the-queue">
-                <a href="javascript:;" id='queue-heading' class="queue-heading"><i class="fa fa-bars"></i>Queue (<span id="queue-qty">0</span>)</a>
+                <a href="javascript:;" id='queue-heading' class="queue-heading"><i class="fa fa-bars"></i>Queue (<span id="queue-qty">{{ queueQty }}</span>)</a>
                 <div id='queue-body' class="queue-body">
                     <hr>
                     <ul id="queue-listings" class="queue-listings">
-                        <li>Use the search field at the top to find music to add to your Queue!</li>
+                        <li ng-repeat="queueListing in queueListings">
+                            <div class='queue-listing-image'>
+                                <img src='{{ queueListing.icon }}' />
+                            </div>
+                            <div class='queue-listing-info'>
+                                <div class='result-name'>{{ queueListing.name }}</div>
+                                <div class='result-artist'>{{ queueListing.artist }}</div>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -72,8 +80,8 @@
                     <li ng-repeat="result in albumResults" style="background-image: url({{ result.icon }})">
                         <div class='result-name'>{{ result.name }}</div>
                         <div class='hover-actions'>
-                            <a href='javascript:;' class='play-result' data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
-                            <a href='javascript:;' class='queue-result' data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
+                            <a href='javascript:;' class='play-result' ng-click="playResult(result.id)" data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
+                            <a href='javascript:;' class='queue-result' ng-click="queueResult(result.id)" data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
                         </div>
                     </li>
                 </ul>
@@ -83,8 +91,8 @@
                     <li ng-repeat="result in trackResults" style="background-image: url({{ result.icon }})">
                         <div class='result-name'>{{ result.name }}</div>
                         <div class='hover-actions'>
-                            <a href='javascript:;' class='play-result' data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
-                            <a href='javascript:;' class='queue-result' data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
+                            <a href='javascript:;' class='play-result' ng-click="playResult(result.id)" data-rdio-id='{{ result.id }}'><i class='fa fa-play'></i> Play this {{ result.type }}</a>
+                            <a href='javascript:;' class='queue-result' ng-click="queueResult(result.id)" data-rdio-id='{{ result.id }}'><i class='fa fa-plus'></i> Add {{ result.type }} to Queue</a>
                         </div>
                     </li>
                 </ul>
