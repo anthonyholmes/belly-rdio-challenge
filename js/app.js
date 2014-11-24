@@ -1,8 +1,14 @@
 var window, playbackToken, duration, searchTimeout;
 var rdioServiceUrl = 'http://rdio-service.herokuapp.com';
 var thePlayer = $('#the-player');
-var playbackToken = 'GAlUVAgn_____3h4NWV0bXZiNThiNDRqOGVmOXQ3cG4zdWxvY2FsaG9zdGEiuZGizYQG__z3RIph0is=';
 var loadingMessage = $('.loading-results-section');
+
+$.post(rdioServiceUrl + '/playback_tokens', {domain: window.location.host}, function (returnedData) {
+   var playbackToken = returnedData.data.playback_token;
+
+   // Initialize the Player
+     thePlayer.rdio(playbackToken);
+ });
 
 // Start Angular
 var bellyRdioApp = angular.module('bellyRdioApp', []);
@@ -11,6 +17,7 @@ bellyRdioApp.controller("bellyRdioAppController", ['$scope', '$http', function (
   $scope.queueQty = 0;
   $scope.thePlayer = document.getElementById('the-player');
   $scope.duration = 0;
+
 
   $scope.search = function (e) {
     // On letter number or backspace or enter
@@ -126,9 +133,6 @@ bellyRdioApp.controller("bellyRdioAppController", ['$scope', '$http', function (
   $scope.next = function () {
     thePlayer.rdio().next();
   };
-
-  // Initialize the Player
-  thePlayer.rdio(playbackToken);
 
 }]);
 
